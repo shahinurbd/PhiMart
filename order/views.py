@@ -94,5 +94,7 @@ class OrderViewSet(ModelViewSet):
     
 
 class OrderItemViewSet(ModelViewSet):
-    queryset = OrderItem.objects.all()
     serializer_class = OrderItemSerialize
+
+    def get_queryset(self):
+        return OrderItem.objects.prefetch_related('items').all()
