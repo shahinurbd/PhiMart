@@ -85,7 +85,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'phi_mart.wsgi.app'
 
 CORS_ALLOWED_ORIGINS = [
-    "https://phimart-theta.vercel.app/api/v1/products"
+    'http://localhost:5173'
 ]
 
 
