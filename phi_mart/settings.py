@@ -86,7 +86,7 @@ WSGI_APPLICATION = 'phi_mart.wsgi.app'
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
-    'https://phi-mart-client-neon.vercel.app/'
+    'https://phi-mart-client-neon.vercel.app'
     
 ]
 
