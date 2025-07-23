@@ -8,7 +8,7 @@ from rest_framework.decorators import action, api_view
 from order.services import OrderService
 from rest_framework.response import Response
 from rest_framework import status
-from sslcommerz_lib import SSLCOMMERZ 
+from sslcommerz_lib import SSLCOMMERZ
 
 
 # Create your views here.
