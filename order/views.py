@@ -4,10 +4,11 @@ from rest_framework.mixins import CreateModelMixin,RetrieveModelMixin,DestroyMod
 from order.models import Cart,CartItem,Order,OrderItem
 from order.serializers import CartSerializer,CartItemSerializer,AddCartItemSerializer,CartUpdateSerializer,OrderSerializer,OrderItemSerialize,CreateOrderSerializer,UpdateOrderSerializer,EmptySerializer
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from order.services import OrderService
 from rest_framework.response import Response
 from rest_framework import status
+from sslcommerz_lib import SSLCOMMERZ 
 
 
 # Create your views here.
@@ -102,10 +103,46 @@ class OrderViewSet(ModelViewSet):
             return Order.objects.prefetch_related('items__product').all()
         return Order.objects.prefetch_related("items__product").filter(user=self.request.user)
     
-   
-    
 
 class OrderItemViewSet(ModelViewSet):
     queryset = OrderItem.objects.prefetch_related('items').all()
     serializer_class = OrderItemSerialize
+
+
+@api_view(['POST'])
+def initiate_payment(request):
+    user = request.user
+    amount = request.data.get("amount")
+    order_id = request.data.get("orderId")
+    num_items = request.data.get("num_items") 
+    settings = { 'store_id': 'phima68807e60df4da', 'store_pass': 'phima68807e60df4da@ssl', 'issandbox': True }
+    sslcz = SSLCOMMERZ(settings)
+    post_body = {}
+    post_body['total_amount'] = amount
+    post_body['currency'] = "BDT"
+    post_body['tran_id'] = f"txn {order_id}"
+    post_body['success_url'] = "http://localhost:5173/dashboard/payment/success/"
+    post_body['fail_url'] = "http://localhost:5173/dashboard/payment/fail/"
+    post_body['cancel_url'] = "http://localhost:5173/dashboard/orders/"
+    post_body['emi_option'] = 0
+    post_body['cus_name'] = f"{user.first_name} {user.last_name}"
+    post_body['cus_email'] = user.email
+    post_body['cus_phone'] = user.phone_number
+    post_body['cus_add1'] = user.address
+    post_body['cus_city'] = "Dhaka"
+    post_body['cus_country'] = "Bangladesh"
+    post_body['shipping_method'] = "Corrier"
+    post_body['multi_card_name'] = ""
+    post_body['num_of_item'] = num_items
+    post_body['product_name'] = "E-commerce Products"
+    post_body['product_category'] = "General"
+    post_body['product_profile'] = "general"
+
+
+    response = sslcz.createSession(post_body)
+
+    if response.get('status') == 'SUCCESS':
+        return Response({"payment_url": response['GatewayPageURL']})
+    return Response({"error": "Payment initiation failed"}, status=status.HTTP_502_BAD_GATEWAY)
+
 
