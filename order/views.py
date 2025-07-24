@@ -161,6 +161,7 @@ def payment_cancel(request):
 
 @api_view(['POST'])
 def payment_fail(request):
+    print("fail")
     return HttpResponseRedirect(f"{main_settings.FRONTEND_URL}/dashboard/payment/fail/")
 
 
